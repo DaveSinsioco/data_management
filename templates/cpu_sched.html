@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Scheduling Simulator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/header.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/cpu_sched.css') }}">
+</head>
+
+<body>
+
+{% include 'header.html' %}
+
+<div class="container">
+
+    <a href="/" class="back-btn">
+        ← Back to Home
+    </a>
+
+    <section class="hero">
+
+        <h1>CPU Scheduling Simulator</h1>
+
+        <p>
+            Simulate and compare CPU scheduling algorithms
+            using custom process inputs.
+        </p>
+
+    </section>
+
+    <div class="dashboard-grid">
+
+        <div class="form-card">
+
+            <h3>Input Parameters</h3>
+
+            <form method="POST">
+
+                {% if error_message %}
+                <div class="error-message">{{ error_message }}</div>
+                {% endif %}
+
+                <label>Arrival Times</label>
+
+                <input
+                    type="text"
+                    name="arrival"
+                    placeholder="0,1,2,3"
+                    required
+                >
+
+                <label>Burst Times</label>
+
+                <input
+                    type="text"
+                    name="burst"
+                    placeholder="5,3,8,6"
+                    required
+                >
+
+                <label>Priority</label>
+
+                <input
+                    type="text"
+                    name="priority"
+                    placeholder="2,1,4,3"
+                    required
+                >
+
+                <label>Algorithm</label>
+
+                <select name="algorithm">
+
+                    <option value="FCFS">
+                        First Come First Serve
+                    </option>
+
+                    <option value="SJF">
+                        Shortest Job First
+                    </option>
+
+                    <option value="PNP">
+                        Priority Non-Preemptive
+                    </option>
+
+                    <option value="PP">
+                        Priority Preemptive
+                    </option>
+
+                    <option value="RR">
+                        Round Robin
+                    </option>
+
+                </select>
+
+                <label>Time Quantum</label>
+
+                <input
+                    type="number"
+                    name="quantum"
+                    value="2"
+                >
+
+                <button
+                    type="submit"
+                    class="execute-btn"
+                >
+                    Run Simulation
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="info-card">
+
+            <h3>Algorithm Guide</h3>
+
+            <div class="guide-item">
+                <h4>FCFS</h4>
+                <p>Processes execute according to arrival order.</p>
+            </div>
+
+            <div class="guide-item">
+                <h4>SJF</h4>
+                <p>Shortest burst time executes first.</p>
+            </div>
+
+            <div class="guide-item">
+                <h4>Priority</h4>
+                <p>Higher priority processes execute first.</p>
+            </div>
+
+            <div class="guide-item">
+                <h4>Round Robin</h4>
+                <p>Processes share CPU time equally using a quantum.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    {% if results %}
+
+    <section class="results-section">
+
+        <h2>Results Summary</h2>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h4>Average Waiting Time</h4>
+                <span>{{ "%.2f"|format(avg_waiting) }}</span>
+            </div>
+
+            <div class="stat-card">
+                <h4>Average Turnaround Time</h4>
+                <span>{{ "%.2f"|format(avg_turnaround) }}</span>
+            </div>
+
+        </div>
+
+        <div class="table-card">
+
+            <h3>Process Results</h3>
+
+            <table>
+
+                <tr>
+                    <th>PID</th>
+                    <th>Arrival</th>
+                    <th>Burst</th>
+                    <th>Priority</th>
+                    <th>Waiting</th>
+                    <th>Turnaround</th>
+                </tr>
+
+                {% for p in results %}
+
+                <tr>
+                    <td>{{ p.pid }}</td>
+                    <td>{{ p.arrival }}</td>
+                    <td>{{ p.burst }}</td>
+                    <td>{{ p.priority }}</td>
+                    <td>{{ p.waiting }}</td>
+                    <td>{{ p.turnaround }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        <div class="gantt-card">
+
+            <h3>Gantt Chart</h3>
+
+            <div class="gantt-chart">
+                {% for segment in timeline %}
+                <div
+                    class="gantt-segment"
+                    style="
+                        left: {{ segment['start'] * 40 }}px;
+                        width: {{ ((segment['end'] - segment['start']) * 40 if ((segment['end'] - segment['start']) * 40) > 40 else 40) }}px;
+                    "
+                >
+                    <span>{{ segment['pid'] }}<br>{{ segment['start'] }} - {{ segment['end'] }}</span>
+                </div>
+                {% endfor %}
+
+                <div class="gantt-axis">
+                    {% for t in range(0, timeline_end + 1) %}
+                    <span style="left: {{ t * 40 }}px;">{{ t }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Virtual Memory Simulator</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/virtual_mem.css') }}">
+</head>
+
+<body>
+
+{% include 'header.html' %}
+
+<div class="container">
+
+    <a href="/" class="back-btn">
+        ← Back to Home
+    </a>
+
+    <section class="hero">
+
+        {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
+        {% endif %}
+
+        <h1>Virtual Memory Simulator</h1>
+
+        <p>
+            Simulate FIFO, LRU, and Optimal
+            page replacement algorithms.
+        </p>
+
+    </section>
+
+    <div class="dashboard-grid">
+
+        <div class="form-card">
+
+            <h3>Input Parameters</h3>
+
+            <form method="POST">
+
+                <label>Reference String</label>
+
+                <input
+                    type="text"
+                    name="reference"
+                    placeholder="7,0,1,2,0,3,0,4"
+                    required>
+
+                <label>Number of Frames</label>
+
+                <input
+                    type="number"
+                    name="frames"
+                    min="1"
+                    required>
+
+                <label>Algorithm</label>
+
+                <select name="algorithm">
+
+                    <option value="FIFO">
+                        FIFO
+                    </option>
+
+                    <option value="LRU">
+                        LRU
+                    </option>
+
+                    <option value="Optimal">
+                        Optimal
+                    </option>
+
+                </select>
+
+                <button
+                    type="submit"
+                    class="execute-btn">
+
+                    Run Simulation
+
+                </button>
+
+            </form>
+
+        </div>
+
+        <div class="info-card">
+
+            <h3>Algorithm Guide</h3>
+
+            <div class="guide-item">
+
+                <h4>FIFO</h4>
+
+                <p>
+                    Replaces the oldest page
+                    currently in memory.
+                </p>
+
+            </div>
+
+            <div class="guide-item">
+
+                <h4>LRU</h4>
+
+                <p>
+                    Replaces the page that
+                    has not been used recently.
+                </p>
+
+            </div>
+
+            <div class="guide-item">
+
+                <h4>Optimal</h4>
+
+                <p>
+                    Replaces the page that
+                    will not be used for the
+                    longest future period.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% if history %}
+
+    <section class="results-section">
+
+        <h2>Results Summary</h2>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+
+                <h4>Page Faults</h4>
+
+                <span>{{ page_faults }}</span>
+
+            </div>
+
+            <div class="stat-card">
+
+                <h4>Page Hits</h4>
+
+                <span>{{ page_hits }}</span>
+
+            </div>
+
+        </div>
+
+        <div class="table-card">
+
+            <h3>Simulation History</h3>
+
+            <table>
+
+                <tr>
+
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th>Frames</th>
+
+                </tr>
+
+                {% for step in history %}
+
+                <tr>
+
+                    <td>{{ step.page }}</td>
+
+                    <td>{{ step.status }}</td>
+
+                    <td>
+
+                        {% for p in step.memory %}
+
+                            {{ p }}
+
+                            {% if not loop.last %}
+                                ,
+                            {% endif %}
+
+                        {% endfor %}
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+    </section>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
